@@ -2,3 +2,5 @@ flask
 msal
 requests
 python-dotenv
+flask-cors
+Flask-Session
