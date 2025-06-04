@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <title>Email Dashboard</title>
 </head>
 <body>
@@ -19,5 +20,6 @@
         </tr>
         {% endfor %}
     </table>
+    <p><a href="{{ url_for('maildash.send_email') }}">Send a New Email</a></p>
 </body>
 </html>

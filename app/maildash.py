@@ -1,6 +1,15 @@
 import msal
 import requests
-from flask import Blueprint, session, redirect, url_for, render_template, request, current_app
+from flask import (
+    Blueprint,
+    session,
+    redirect,
+    url_for,
+    render_template,
+    flash,
+    request,
+    current_app
+)
 
 
 maildash_bp = Blueprint('maildash', __name__)
@@ -70,10 +79,57 @@ def dashboard():
     graph_data = requests.get(
         'https://graph.microsoft.com/v1.0/me/messages',
         headers={'Authorization': f"Bearer {token['access_token']}"},
-        params={'$top': '40', '$select': 'subject,from,receivedDateTime'}
+        params={'$top': '10', '$select': 'subject,from,receivedDateTime'}
     ).json()
 
     return render_template(
         'dashboard.html', 
         emails=graph_data.get('value', [])
         )
+
+
+@maildash_bp.route('/send', methods=['GET', 'POST'])
+def send_email():
+    token = _get_token_from_cache()
+    if not token:
+        return redirect(url_for('login'))
+
+    if request.method == 'POST':
+        to_email = request.form.get('to_email')
+        subject = request.form.get('subject')
+        body = request.form.get('body')
+
+        email_msg = {
+            "message": {
+                "subject": subject,
+                "body": {
+                    "contentType": "Text",
+                    "content": body
+                },
+                "toRecipients": [
+                    {
+                        "emailAddress": {
+                            "address": to_email
+                        }
+                    }
+                ]
+            }
+        }
+
+        send_response = requests.post(
+            'https://graph.microsoft.com/v1.0/me/sendMail',
+            headers={
+                'Authorization': 'Bearer ' + token['access_token'],
+                'Content-Type': 'application/json'
+            },
+            json=email_msg
+        )
+
+        if send_response.status_code == 202:
+            flash("Email sent successfully!", "success")
+        else:
+            flash(f"Error sending email: {send_response.text}", "danger")
+
+        return redirect(url_for('maildash.send_email'))
+
+    return render_template('send.html')
