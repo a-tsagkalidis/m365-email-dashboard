@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Email Dashboard</title>
+</head>
+<body>
+    <h1>Recent Emails</h1>
+    <table border="1">
+        <tr>
+            <th>Subject</th>
+            <th>From</th>
+            <th>Received Date</th>
+        </tr>
+        {% for email in emails %}
+        <tr>
+            <td>{{ email.subject }}</td>
+            <td>{{ email.from.emailAddress.name }}</td>
+            <td>{{ email.receivedDateTime }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>
