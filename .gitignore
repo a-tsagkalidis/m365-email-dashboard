@@ -194,4 +194,4 @@ cython_debug/
 .cursorignore
 .cursorindexingignore
 
-/flask_session
+/flask_session/*
